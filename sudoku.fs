@@ -38,58 +38,58 @@ create puzzle
 \ Rather than compare against zero, make the code more meaningful to readers.
 
 : unassigned? ( -- )
-   ]] 0= [[ ; immediate
+    0=  ; 
 
 
 \ Puzzle access methods
 
 : grid>addr ( n - addr )
-   ]] cells puzzle + [[ ; immediate
+    cells puzzle +  ; 
 
 : grid@ ( n -- number )
-   ]] grid>addr @ [[ ; immediate
+    grid>addr @  ; 
 
 : grid! ( number n -- )
-   ]] grid>addr ! [[ ; immediate
+    grid>addr !  ; 
 
 
 \ Move and grid position translation methods
 
 : move>xy ( n -- x y )
-   ]] board-size /mod [[ ; immediate
+    board-size /mod  ; 
 
 : move>x ( n -- x )
-   ]] board-size mod [[ ; immediate
+    board-size mod  ; 
 
 : move>y ( n -- y )
-   ]] board-size / [[ ; immediate
+    board-size /  ; 
 
 : xy>move ( x y -- n )
-   ]] board-size * + [[ ; immediate
+    board-size * +  ; 
 
 
 \ Row, column and box start positions
 
 : move>row-start ( n -- n )
-   ]] move>y board-size * [[ ; immediate
+    move>y board-size *  ; 
 
 : move>column-start ( n -- n )
-   ]] move>x [[ ; immediate
+    move>x  ; 
 
 : box-side-start ( n -- n )
-   ]] dup box-size mod - [[ ; immediate
+    dup box-size mod -  ; 
 
 : move>box-start ( n -- n )
-   ]] move>xy
+    move>xy
    box-side-start swap
    box-side-start swap
-   xy>move [[ ; immediate
+   xy>move  ; 
 
 
 \ Used macro helper
 
 : cell-check
-	]] 2dup @ = if drop exit then [[ ; immediate
+	 2dup @ = if drop r> drop exit then  ; immediate
 
 
 \ Function: used-in-row?
@@ -184,13 +184,12 @@ create puzzle
 \ decision point.
 
 : solve? ( n -- f )
-   recursive
    dup cell-count = if drop -1 exit then            \ success!
-   dup grid@ if 1+ solve? exit then                 \ if it's already assigned, skip
+   dup grid@ if 1+ recurse exit then                 \ if it's already assigned, skip
    10 1 ?do                                         \ consider all digits
      i over available? if                           \ if looks promising
        i over grid!                                 \ make tentative assignment
-       dup 1+ solve? if
+       dup 1+ recurse if
          unloop drop -1 exit                        \ recur, if success, yay!
        then
      then 
@@ -230,13 +229,9 @@ create puzzle
    cr cr .box-break-horizontal cr ;
 
 : game ( -- )
-  utime
   0 solve? if
-    utime 2swap d-
     .board
-    cr cr ." Time taken " d. ." microseconds" cr cr
   else
-    2drop
     cr cr ." No solution exists"
   then ;
 
